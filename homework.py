@@ -131,7 +131,7 @@ def main():
     """Основная логика работы бота."""
     try:
         check_tokens() is True
-    except TokenExistsException as error:
+    except Exception as error:
         logger.critical(error, exc_info=True)
         exit()
     current_timestamp = int(time.time())

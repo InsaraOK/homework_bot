@@ -11,6 +11,7 @@ TOKENS = [
     os.getenv('T_CHAT_ID'),
 ]
 
+
 class TokenExistsException(Exception):
     pass
 
