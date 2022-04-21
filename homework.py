@@ -99,6 +99,8 @@ def parse_status(homework):
         raise KeyError
     try:
         homework_status = homework.get('status')
+        if 'status' not in homework:
+            raise KeyError
     except KeyError as error:
         logger.error(error, exc_info=True)
         BOT.send_message(TELEGRAM_CHAT_ID, error)
@@ -141,8 +143,9 @@ def main():
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
             if len(homeworks) != 0:
-                message = parse_status(homeworks[0])
-                send_message(BOT, message)
+                for hw in homeworks:
+                    message = parse_status(hw)
+                    send_message(BOT, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)
