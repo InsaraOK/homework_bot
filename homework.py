@@ -141,9 +141,8 @@ def main():
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
             if len(homeworks) != 0:
-                for hw in homeworks:
-                    message = parse_status(hw)
-                    send_message(BOT, message)
+                message = parse_status(homeworks[0])
+                send_message(BOT, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)
