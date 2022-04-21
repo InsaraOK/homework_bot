@@ -60,8 +60,6 @@ def get_api_answer(current_timestamp):
         raise Exception('API-сервис не доступен')
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-    except requests.exceptions.HTTPError as error:
-        logger.error(error, exc_info=True)
     except Exception as error:
         logger.error(
             f'Запрос к API-сервису не удалася по причине {error}',
@@ -137,7 +135,6 @@ def main():
         logger.critical(error, exc_info=True)
         exit()
     current_timestamp = int(time.time())
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
     check_tokens()
     while True:
         try:
@@ -146,7 +143,7 @@ def main():
             if len(homeworks) != 0:
                 for hw in homeworks:
                     message = parse_status(hw)
-                    send_message(bot, message)
+                    send_message(BOT, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)

@@ -10,12 +10,6 @@ TOKENS = [
     os.getenv('T_TOKEN'),
     os.getenv('T_CHAT_ID'),
 ]
-HOMEWORK_STATUSES = [
-    'approved',
-    'reviewing',
-    'rejected',
-]
-
 
 class TokenExistsException(Exception):
     pass
