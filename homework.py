@@ -137,6 +137,7 @@ def main():
         logger.critical(error, exc_info=True)
         exit()
     current_timestamp = int(time.time())
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
     check_tokens()
     while True:
         try:
@@ -145,7 +146,7 @@ def main():
             if len(homeworks) != 0:
                 for hw in homeworks:
                     message = parse_status(hw)
-                    send_message(BOT, message)
+                    send_message(bot, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)
