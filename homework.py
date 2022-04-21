@@ -59,6 +59,8 @@ def get_api_answer(current_timestamp):
         raise Exception('API-сервис не доступен')
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        if response.status_code != 200:
+            raise Exception('API-сервис не доступен')
     except Exception as error:
         logger.error(
             f'Запрос к API-сервису не удалася по причине {error}',
