@@ -158,7 +158,7 @@ def main():
             message = f'Сбой в работе программы: {error}'
             send_message(BOT, message)
             time.sleep(RETRY_TIME)
-        finally:
+        else:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
             if len(homeworks) != 0:
