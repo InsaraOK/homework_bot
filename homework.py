@@ -8,7 +8,7 @@ import time
 
 import telegram
 
-
+from exceptions import TokenExistsException
 load_dotenv()
 
 
@@ -82,7 +82,6 @@ def check_response(response):
         if type(homeworks) != list:
             raise TypeError
     except KeyError as error:
-        homeworks = None
         logger.error(error, exc_info=True)
         BOT.send_message(TELEGRAM_CHAT_ID, error)
     else:
@@ -130,7 +129,7 @@ def main():
     """Основная логика работы бота."""
     try:
         check_tokens() is True
-    except Exception as error:
+    except TokenExistsException as error:
         logger.critical(error, exc_info=True)
         exit()
     current_timestamp = int(time.time())
