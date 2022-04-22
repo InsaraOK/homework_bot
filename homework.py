@@ -14,8 +14,6 @@ load_dotenv()
 PRACTICUM_TOKEN = os.getenv('YP_TOKEN')
 TELEGRAM_TOKEN = os.getenv('T_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('T_CHAT_ID')
-BOT = telegram.Bot(token=TELEGRAM_TOKEN)
-
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
@@ -85,7 +83,8 @@ def check_response(response):
             raise TypeError
     except Exception as error:
         logger.error(error, exc_info=True)
-        BOT.send_message(TELEGRAM_CHAT_ID, error)
+        bot = telegram.Bot(token=TELEGRAM_TOKEN)
+        bot.send_message(TELEGRAM_CHAT_ID, error)
     else:
         return homeworks
 
@@ -105,7 +104,8 @@ def parse_status(homework):
             raise KeyError
     except KeyError as error:
         logger.error(error, exc_info=True)
-        BOT.send_message(TELEGRAM_CHAT_ID, error)
+        bot = telegram.Bot(token=TELEGRAM_TOKEN)
+        bot.send_message(TELEGRAM_CHAT_ID, error)
         raise KeyError
     else:
         if homework_status not in HOMEWORK_STATUSES:
@@ -113,7 +113,8 @@ def parse_status(homework):
                        ' домашней работы',
                        ' обнаружен в ответе.')
             logger.error(message)
-            BOT.send_message(TELEGRAM_CHAT_ID, message)
+            bot = telegram.Bot(token=TELEGRAM_TOKEN)
+            bot.send_message(TELEGRAM_CHAT_ID, message)
             raise ValueError(message)
         else:
             verdict = HOMEWORK_STATUSES[homework_status]
