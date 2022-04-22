@@ -136,8 +136,6 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            if len(homeworks) == 0:
-                raise ValueError
             for hw in homeworks:
                 message = parse_status(hw)
                 send_message(BOT, message)
