@@ -158,11 +158,6 @@ def main():
             send_message(BOT, message)
             time.sleep(RETRY_TIME)
         else:
-            response = get_api_answer(current_timestamp)
-            homeworks = check_response(response)
-            for hw in homeworks:
-                message = parse_status(hw)
-                send_message(BOT, message)
             time.sleep(RETRY_TIME)
 
 
