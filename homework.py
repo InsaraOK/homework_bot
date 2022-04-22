@@ -132,7 +132,6 @@ def main():
         logger.critical(error, exc_info=True)
         exit()
     current_timestamp = int(time.time())
-    check_tokens()
     while True:
         try:
             response = get_api_answer(current_timestamp)
