@@ -8,7 +8,6 @@ import time
 
 import telegram
 
-from exceptions import TokenExistsException
 load_dotenv()
 
 
