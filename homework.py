@@ -59,8 +59,6 @@ def get_api_answer(current_timestamp):
         raise Exception('API-сервис не доступен')
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-        if response.status_code != 200:
-            raise Exception('API-сервис не доступен')
     except Exception as error:
         logger.error(
             f'Запрос к API-сервису не удалася по причине {error}',
@@ -75,7 +73,7 @@ def check_response(response):
         message = 'Ответ от API не содержит словарь'
         logger.error(message)
         raise TypeError
-    if len(response) == 0:
+    if type(response) == dict and len(response) == 0:
         message = 'Ответ от API содержит пустой словарь'
         logger.error(message)
         raise ValueError
