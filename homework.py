@@ -81,7 +81,9 @@ def check_response(response):
     if type(homeworks) != list:
         raise TypeError
     try:
-        homeworks = response.get('homeworks')
+        homeworks
+        if 'homeworks' not in response:
+            raise KeyError
     except KeyError as error:
         logger.error(error, exc_info=True)
         BOT.send_message(TELEGRAM_CHAT_ID, error)
@@ -141,9 +143,10 @@ def main():
             homeworks = check_response(response)
             if type(homeworks) != list:
                 raise TypeError
-            if homeworks != []:
-                message = parse_status(homeworks[0])
-                send_message(BOT, message)
+            if len(homeworks) != 0:
+                for hw in homeworks:
+                    message = parse_status(hw)
+                    send_message(BOT, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)
