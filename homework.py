@@ -139,11 +139,8 @@ def main():
             homeworks = check_response(response)
             if type(homeworks) is None:
                 raise TypeError
-            if len(homeworks) == 0:
-                raise ValueError
-            for hw in homeworks:
-                message = parse_status(hw)
-                send_message(BOT, message)
+            message = parse_status(homeworks[0])
+            send_message(BOT, message)
             time.sleep(RETRY_TIME)
         except ValueError as error:
             message = 'Список домашних работ пуст'
