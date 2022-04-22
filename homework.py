@@ -141,7 +141,7 @@ def main():
             homeworks = check_response(response)
             if type(homeworks) != list:
                 raise TypeError
-            elif len(homeworks) != 0:
+            if homeworks != []:
                 for hw in homeworks:
                     message = parse_status(hw)
                     send_message(BOT, message)
