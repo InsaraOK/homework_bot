@@ -131,10 +131,9 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-    try:
-        check_tokens() is True
-    except TokenExistsException as error:
-        logger.critical(error, exc_info=True)
+    if check_tokens() is True:
+        message = 'Переменные оружения не доступны'
+        logger.critical(message)
         exit()
     current_timestamp = int(time.time())
     while True:
