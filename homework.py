@@ -145,13 +145,11 @@ def main():
                 for hw in homeworks:
                     message = parse_status(hw)
                     send_message(BOT, message)
-                    time.sleep(RETRY_TIME)
             else:
                 continue
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(BOT, message)
-            time.sleep(RETRY_TIME)
         finally:
             time.sleep(RETRY_TIME)
 
