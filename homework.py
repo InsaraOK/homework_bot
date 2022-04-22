@@ -69,20 +69,21 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверка ответа API на корректность."""
+    if type(response) is None:
+        raise TypeError
     if type(response) != dict:
         message = 'Ответ от API не содержит словарь'
         logger.error(message)
         raise TypeError
-    homeworks = response.get('homeworks')
-    if type(homeworks) != list:
-        raise TypeError
-    if type(homeworks) is None:
-        raise TypeError
     try:
-        homeworks
+        homeworks = response.get('homeworks')
         if 'homeworks' not in response:
             raise KeyError
-    except KeyError as error:
+        if type(homeworks) is None:
+            raise TypeError
+        if type(homeworks) != list:
+            raise TypeError
+    except Exception as error:
         logger.error(error, exc_info=True)
         BOT.send_message(TELEGRAM_CHAT_ID, error)
     else:
