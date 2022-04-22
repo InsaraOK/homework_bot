@@ -106,7 +106,7 @@ def parse_status(homework):
         BOT.send_message(TELEGRAM_CHAT_ID, error)
         raise KeyError
     else:
-        if homework_status not in HOMEWORK_STATUSES.keys():
+        if homework_status not in HOMEWORK_STATUSES:
             message = ('Недокументированный статус'
                        ' домашней работы',
                        ' обнаружен в ответе.')
@@ -114,7 +114,7 @@ def parse_status(homework):
             BOT.send_message(TELEGRAM_CHAT_ID, message)
             raise ValueError(message)
         else:
-            verdict = HOMEWORK_STATUSES.get(homework_status)
+            verdict = HOMEWORK_STATUSES[homework_status]
             return (f'Изменился статус проверки работы '
                     f'"{homework_name}". {verdict}')
 
@@ -141,21 +141,18 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            if type(homeworks) is None:
-                raise TypeError
-            message = parse_status(homeworks[0])
-            send_message(BOT, message)
-            time.sleep(RETRY_TIME)
-        except ValueError as error:
-            message = 'Список домашних работ пуст'
-            logger.debug(error, exc_info=True)
-            send_message(BOT, message)
-            time.sleep(RETRY_TIME)
+            if len(homeworks) != 0:
+                for hw in homeworks:
+                    message = parse_status(hw)
+                    send_message(BOT, message)
+                    time.sleep(RETRY_TIME)
+            else:
+                continue
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(BOT, message)
             time.sleep(RETRY_TIME)
-        else:
+        finally:
             time.sleep(RETRY_TIME)
 
 
