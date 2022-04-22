@@ -58,7 +58,7 @@ def get_api_answer(current_timestamp):
     if response.status_code != 200:
         raise Exception('API-сервис не доступен')
     try:
-        response 
+        response
         if type(response) is None:
             raise TypeError
     except Exception as error:
