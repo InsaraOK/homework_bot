@@ -73,15 +73,15 @@ def check_response(response):
         message = 'Ответ от API не содержит словарь'
         logger.error(message)
         raise TypeError
-    if type(response) == dict:
-        if len(response) == 0:
-            message = 'Ответ от API содержит пустой словарь'
-            logger.error(message)
-            raise ValueError
+    if len(response) == 0:
+        message = 'Ответ от API содержит пустой словарь'
+        logger.error(message)
+        raise ValueError
+    homeworks = response.get('homeworks')
+    if type(homeworks) != list:
+        raise TypeError
     try:
         homeworks = response.get('homeworks')
-        if type(homeworks) != list:
-            raise TypeError
     except KeyError as error:
         logger.error(error, exc_info=True)
         BOT.send_message(TELEGRAM_CHAT_ID, error)
