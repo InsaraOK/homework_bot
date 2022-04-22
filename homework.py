@@ -131,10 +131,11 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     if check_tokens() is True:
-        message = 'Переменные оружения не доступны'
+        message = 'Переменные окружения не доступны'
         logger.critical(message)
         exit()
     current_timestamp = int(time.time())
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
     while True:
         try:
             response = get_api_answer(current_timestamp)
@@ -142,12 +143,12 @@ def main():
             if len(homeworks) != 0:
                 for hw in homeworks:
                     message = parse_status(hw)
-                    send_message(BOT, message)
+                    send_message(bot, message)
             else:
                 continue
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            send_message(BOT, message)
+            send_message(bot, message)
         finally:
             time.sleep(RETRY_TIME)
 
