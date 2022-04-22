@@ -71,8 +71,6 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверка ответа API на корректность."""
-    if type(response) is None:
-        raise TypeError
     if type(response) != dict:
         message = 'Ответ от API не содержит словарь'
         logger.error(message)
@@ -139,6 +137,8 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
+            if type(homeworks) is None:
+                raise TypeError
             if len(homeworks) == 0:
                 raise ValueError
             for hw in homeworks:
