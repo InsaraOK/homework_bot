@@ -58,7 +58,9 @@ def get_api_answer(current_timestamp):
     if response.status_code != 200:
         raise Exception('API-сервис не доступен')
     try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        response 
+        if type(response) is None:
+            raise TypeError
     except Exception as error:
         logger.error(
             f'Запрос к API-сервису не удалася по причине {error}',
@@ -79,8 +81,6 @@ def check_response(response):
         homeworks = response.get('homeworks')
         if 'homeworks' not in response:
             raise KeyError
-        if type(homeworks) is None:
-            raise TypeError
         if type(homeworks) != list:
             raise TypeError
     except Exception as error:
