@@ -73,10 +73,6 @@ def check_response(response):
         message = 'Ответ от API не содержит словарь'
         logger.error(message)
         raise TypeError
-    if len(response) == 0:
-        message = 'Ответ от API содержит пустой словарь'
-        logger.error(message)
-        raise ValueError
     homeworks = response.get('homeworks')
     if type(homeworks) != list:
         raise TypeError
