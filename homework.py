@@ -76,7 +76,7 @@ def check_response(response):
     homeworks = response.get('homeworks')
     if type(homeworks) != list:
         raise TypeError
-    if type(homeworks) == None:
+    if type(homeworks) is None:
         raise TypeError
     try:
         homeworks
