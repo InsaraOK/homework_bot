@@ -142,9 +142,8 @@ def main():
             if type(homeworks) != list:
                 raise TypeError
             if homeworks != []:
-                for hw in homeworks:
-                    message = parse_status(hw)
-                    send_message(BOT, message)
+                message = parse_status(homeworks[0])
+                send_message(BOT, message)
             else:
                 raise ValueError
             time.sleep(RETRY_TIME)
