@@ -90,6 +90,10 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлечение имени и статуса о конкретной домашней работе."""
+    if type(homework) != dict:
+        message = 'homework не содержит словарь'
+        logger.error(message)
+        raise TypeError
     homework_name = homework.get('homework_name')
     if 'homework_name' not in homework:
         raise KeyError
