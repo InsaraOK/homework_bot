@@ -106,7 +106,7 @@ def parse_status(homework):
         BOT.send_message(TELEGRAM_CHAT_ID, error)
         raise KeyError
     else:
-        if homework_status not in HOMEWORK_STATUSES:
+        if homework_status not in HOMEWORK_STATUSES.keys():
             message = ('Недокументированный статус'
                        ' домашней работы',
                        ' обнаружен в ответе.')
@@ -114,7 +114,7 @@ def parse_status(homework):
             BOT.send_message(TELEGRAM_CHAT_ID, message)
             raise ValueError(message)
         else:
-            verdict = HOMEWORK_STATUSES[homework_status]
+            verdict = HOMEWORK_STATUSES.get(homework_status)
             return (f'Изменился статус проверки работы '
                     f'"{homework_name}". {verdict}')
 
