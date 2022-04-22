@@ -14,6 +14,7 @@ load_dotenv()
 PRACTICUM_TOKEN = os.getenv('YP_TOKEN')
 TELEGRAM_TOKEN = os.getenv('T_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('T_CHAT_ID')
+
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
@@ -134,7 +135,7 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-    if check_tokens() is True:
+    if check_tokens() is False:
         message = 'Переменные окружения не доступны'
         logger.critical(message)
         exit()
