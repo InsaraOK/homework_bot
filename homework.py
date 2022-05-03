@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import sys
@@ -27,24 +26,31 @@ VERDICTS = {
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
+TOKENS = ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID',)
+MISSING_TOKENS = [name for name in TOKENS if globals()[name] is None]
 BOT_MESSAGE = ('Бот успешно отправил сообщение - "{message}"'
                f' в чат {TELEGRAM_CHAT_ID}')
-BOT_MESSAGE_2 = 'Отправка сообщения {message} не удалась по причине {error}'
+BOT_MESSAGE_FAIL = 'Отправка сообщения {message} не удалась по причине {error}'
 RESPONSE_EXCEPTION_MESSAGE = (
-    'На запрос с параметрами {endpoint}, {headers}, {params}.'
-    ' Получен код ответа {code}')
+    'При запросе с параметрами {url}, {headers}, {params}'
+    ' произошел сбой сети по причине {error}')
+RESPONSE_CODE_EXCEPTION_MESSAGE = (
+    'На запрос с параметрами {url}, {headers}, {params}'
+    ' получен код ответа {code}')
 JSON_ERROR_MESSAGE = (
-    'Ответ {response} от сервера не соответствует'
-    ' ожидаемому по причине {error}.')
-WRONG_STATUS_MESSAGE = ('Недокументированный статус {status}'
+    'На запрос с параметрами {url}, {headers}, {params}'
+    ' от сервера получен отказ от обслуживания по причине {error}.'
+    'Информация о причине отказа соотвтетствует ключу {key}.')
+WRONG_STATUS_MESSAGE = ('Неожиданный статус {status}'
                         ' домашней работы {name} обнаружен в ответе.')
 TRUE_STATUS_MESSAGE = 'Изменился статус проверки работы "{name}". {verdict}'
 MAIN_EXCEPTION_MESSAGE = 'Сбой в работе программы: {error}'
-CHECK_RESPONSE_MESSAGE = ('Тип данных в ответе от API {type}'
-                          'не сооответствует ожидаемому')
-CHECK_RESPONSE_MESSAGE_2 = ('Тип данных по ключу "homeworks" {type}',
-                            'не сооответствует ожидаемому')
+CHECK_RESPONSE_TYPE_MESSAGE = ('Тип данных в ответе от API {type}'
+                               'не сооответствует ожидаемому')
+CHECK_RESPONSE_KEY_MESSAGE = ('Тип данных по ключу "homeworks" {type}',
+                              'не сооответствует ожидаемому')
 CHECK_TOKENS_MESSAGE = 'Переменная окружения {name} не доступна.'
+MAIN_CHECK_TOKENS_MESSAGE = 'Переменные окружения не доступны.'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -65,48 +71,58 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(BOT_MESSAGE.format(message=message))
     except Exception as error:
-        logger.exception(BOT_MESSAGE_2.format(message=message, error=error))
+        logger.exception(BOT_MESSAGE_FAIL.format(message=message, error=error))
 
 
 def get_api_answer(current_timestamp):
     """Запрос к API-сервису."""
     params = {'from_date': current_timestamp}
+    request_parameters = dict(
+        url=ENDPOINT,
+        headers=HEADERS,
+        params=params,
+    )
     try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        response = requests.get(**request_parameters)
     except requests.RequestException as error:
-        raise ConnectionError(error)
+        raise ConnectionError(RESPONSE_EXCEPTION_MESSAGE.format(
+            **request_parameters, error=error))
     if response.status_code != 200:
         raise ResponseCodeException(
-            RESPONSE_EXCEPTION_MESSAGE.format(
-                endpoint=ENDPOINT, headers=HEADERS,
-                params=params, code=response.status_code
+            RESPONSE_CODE_EXCEPTION_MESSAGE.format(
+                **request_parameters,
+                code=response.status_code
             ))
     response = response.json()
-    if 'code' in response:
-        error = response.get('code')
-        raise json.JSONDecodeError(
-            JSON_ERROR_MESSAGE.format(response=response, error=error))
-    if 'error' in response:
-        error = response.get('error')
-        raise json.JSONDecodeError(
-            JSON_ERROR_MESSAGE.format(response=response, error=error))
+    error_info_containers = ['code', 'error']
+    for container in error_info_containers:
+        if container in response:
+            error = response.get(container)
+            raise ValueError(
+                JSON_ERROR_MESSAGE.format(
+                    **request_parameters,
+                    error=error,
+                    key=container
+                ))
     return response
 
 
 def check_response(response):
     """Проверка ответа API на корректность."""
     if not isinstance(response, dict):
-        raise TypeError(CHECK_RESPONSE_MESSAGE.format(type=type(response)))
+        raise TypeError(
+            CHECK_RESPONSE_TYPE_MESSAGE.format(type=type(response)))
     if 'homeworks' not in response:
         raise KeyError('ответ от API не содержит ключ "homeworks"')
     homeworks = response.get('homeworks')
     if not isinstance(homeworks, list):
-        raise TypeError(CHECK_RESPONSE_MESSAGE_2.format(type=type(homeworks)))
+        raise TypeError(
+            CHECK_RESPONSE_KEY_MESSAGE.format(type=type(homeworks)))
     return homeworks
 
 
 def parse_status(homework):
-    """Извлечение имени и статуса домашней работы."""
+    """Проверка статуса домашней работы."""
     name = homework['homework_name']
     status = homework['status']
     if status not in VERDICTS:
@@ -116,19 +132,18 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка доступности переменных окружения."""
-    tokens = ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID',)
     result = True
-    for name in tokens:
-        if globals()[name] is None:
-            logger.critical(CHECK_TOKENS_MESSAGE.format(name=name))
-            result = False
+    missing_tokens = [name for name in TOKENS if globals()[name] is None]
+    if missing_tokens != []:
+        logger.critical(CHECK_TOKENS_MESSAGE.format(name=missing_tokens))
+        result = False
     return result
 
 
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        raise ValueError('Переменные окружения не доступны')
+        raise ValueError(MAIN_CHECK_TOKENS_MESSAGE)
     current_timestamp = int(time.time())
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     exception_message = ''
@@ -136,17 +151,15 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get(
-                'current_date',
-                default=current_timestamp
-            )
-            homeworks = check_response(response)
-            message = parse_status(homeworks[0])
-            send_message(bot, message)
+                'current_date', current_timestamp)
+            send_message(bot, check_response(response)[0])
         except Exception as error:
             message = MAIN_EXCEPTION_MESSAGE.format(error=error)
             logger.exception(message)
             if message != exception_message:
-                send_message(bot, message)
+                info = send_message(bot, message)
+                if not info:
+                    exception_message
                 exception_message = message
         time.sleep(RETRY_TIME)
 
