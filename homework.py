@@ -27,7 +27,6 @@ VERDICTS = {
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
 TOKENS = ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID',)
-MISSING_TOKENS = [name for name in TOKENS if globals()[name] is None]
 BOT_MESSAGE = ('Бот успешно отправил сообщение - "{message}"'
                f' в чат {TELEGRAM_CHAT_ID}')
 BOT_MESSAGE_FAIL = 'Отправка сообщения {message} не удалась по причине {error}'
