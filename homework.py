@@ -69,8 +69,10 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(BOT_MESSAGE.format(message=message))
+        return True
     except Exception as error:
         logger.exception(BOT_MESSAGE_FAIL.format(message=message, error=error))
+        return False
 
 
 def get_api_answer(current_timestamp):
@@ -93,8 +95,7 @@ def get_api_answer(current_timestamp):
                 code=response.status_code
             ))
     response = response.json()
-    error_info_containers = ['code', 'error']
-    for container in error_info_containers:
+    for container in ['code', 'error']:
         if container in response:
             error = response.get(container)
             raise ValueError(
@@ -131,12 +132,11 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверка доступности переменных окружения."""
-    result = True
     missing_tokens = [name for name in TOKENS if globals()[name] is None]
-    if missing_tokens != []:
+    if missing_tokens:
         logger.critical(CHECK_TOKENS_MESSAGE.format(name=missing_tokens))
-        result = False
-    return result
+        return False
+    return True
 
 
 def main():
@@ -149,17 +149,15 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            current_timestamp = response.get(
-                'current_date', current_timestamp)
-            send_message(bot, check_response(response)[0])
+            if send_message(bot, check_response(response)[0]):
+                current_timestamp = response.get(
+                    'current_date', current_timestamp)
         except Exception as error:
             message = MAIN_EXCEPTION_MESSAGE.format(error=error)
             logger.exception(message)
             if message != exception_message:
-                info = send_message(bot, message)
-                if not info:
-                    exception_message
-                exception_message = message
+                if send_message(bot, message):
+                    exception_message = message
         time.sleep(RETRY_TIME)
 
 
